@@ -1,0 +1,20 @@
+{
+  "name": "ttics",
+  "version": "0.68.2",
+  "private": true,
+  "description": "team-tactics monorepo — @ttics/tics (protocol) + @ttics/tdd (pairing) + team-tactics (product)",
+  "workspaces": [
+    "packages/*"
+  ],
+  "bin": {
+    "ttics": "packages/team-tactics/bin/cli.js",
+    "tics": "packages/team-tactics/bin/cli.js"
+  },
+  "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "pack:tarball": "node scripts/pack-tarball.js",
+    "release:tarball": "bash infra/release-tarball.sh"
+  },
+  "license": "MIT",
+  "author": "geda0 <geda071@gmail.com>"
+}

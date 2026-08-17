@@ -1,0 +1,38 @@
+node_modules/
+*.tgz
+.DS_Store
+
+# >>> team-tactics (managed) >>>
+# Transient kit artifacts - never commit (other state files ARE committed for continuity).
+.claude/state/suite-status
+.claude/state/telemetry.jsonl
+.claude/state/tics.jsonl
+.claude/state/tics.d/
+.claude/**/*.bak
+.claude/agents/*.md.kit-*
+*.team-tactics.*
+# MCP server configs hold machine-specific absolute paths — never commit (re-generate via mcp-install).
+.mcp.json
+.cursor/mcp.json
+# <<< team-tactics (managed) <<<
+
+# team-tactics dogfoods itself: the .claude/ harness + method-doc copies are GENERATED
+# from kit/ by `node bin/cli.js .`. kit/ is the committed source of truth; only the
+# project-specific config + invariants + CI are committed.
+/.claude/agents/
+/.claude/hooks/
+/.claude/scripts/
+/.claude/state/
+/.claude/settings.json
+/.claude/.team-tactics/
+/docs/tdd/tdd-workflow.md
+/docs/tdd/testing-philosophy.md
+/docs/tdd/conventions.md
+/AGENTS.md
+/CLAUDE.md
+/.claude/KICKOFF.md
+/docs/tics/tic-protocol.md
+/docs/tics/context-map.md
+# MCP configs are machine-specific (absolute node + repo paths) — generated, local only.
+/.mcp.json
+/.cursor/
