@@ -109,6 +109,45 @@ test("W11: no markdown the kit ships to adopters carries a stray tool-call artif
   assert.deepStrictEqual(offenders, [], "shipped .md must not contain tool-call artifacts:\n  " + offenders.join("\n  "));
 });
 
+// PORT-1 (ADR 0025 — the repo is now open source and PUBLISHED): a machine-specific absolute path in
+// a tracked file is two bugs at once — a PRIVACY leak (it publishes a home directory and a person's
+// real name to every reader) and a CORRECTNESS bug (it documents a location that exists on exactly
+// one machine, so no reader can follow it). Enumerate from `git ls-files`, never a hardcoded list,
+// so a NEW file cannot slip a new leak through. NOT violations: `~/…` (a tilde path is portable by
+// construction — FOR-TESTERS.md and scripts/pack-tarball.js legitimately use `~/ttics-kit`), and the
+// handle `geda0` / geda071@gmail.com (the project's deliberate public identity and the MIT copyright
+// holder, required by license.test.js).
+test("PORT-1: no file tracked in git carries a machine-specific absolute path or the maintainer's personal name", () => {
+  const LEAKS = [
+    ["macOS home path", /\/Users\/[A-Za-z0-9._-]+\//],
+    ["Linux home path", /\/home\/[A-Za-z0-9._-]+\//],
+    ["Windows user path", /[A-Za-z]:\\Users\\[A-Za-z0-9._-]+/],
+    ["maintainer's personal name", /marwan|elgendy/i],
+  ];
+  // This file necessarily CONTAINS the patterns it hunts for (they are written just above as regex
+  // literals), so the sweep would flag its own source. Excluded by path — honestly, and only this one
+  // file; weakening the patterns to dodge the self-match would weaken the sweep for every other file.
+  const SELF = path.relative(ROOT, __filename);
+
+  const tracked = cp.execFileSync("git", ["-C", ROOT, "ls-files", "-z"], { encoding: "utf8" })
+    .split("\0").filter(Boolean).filter((rel) => rel !== SELF);
+  assert.ok(tracked.length > 20, "the sweep actually enumerated the tracked files (guard against a dead walk)");
+
+  const offenders = [];
+  for (const rel of tracked) {
+    let buf;
+    try { buf = fs.readFileSync(path.join(ROOT, rel)); } catch (e) { continue; } // staged-but-absent, dir symlink
+    if (buf.includes(0)) continue;                                               // binary asset — no text to sweep
+    buf.toString("utf8").split("\n").forEach((line, i) => {
+      const hits = LEAKS.filter(([, re]) => re.test(line)).map(([what]) => what);
+      if (hits.length) offenders.push(`${rel}:${i + 1} [${hits.join(" + ")}] ${line.trim().slice(0, 120)}`);
+    });
+  }
+
+  assert.deepStrictEqual(offenders, [],
+    "tracked files must be portable — no home-directory absolute path, no maintainer name:\n  " + offenders.join("\n  "));
+});
+
 test("the release git-archive tarball SHIPS the full-team preset helper (a bare scripts/ export-ignore strips it)", () => {
   // The real artifact is `git archive` filtered by .gitattributes. A bare `scripts/ export-ignore`
   // matches the nested preset scripts/ dir and strips the browser-QA helper, crashing the installer

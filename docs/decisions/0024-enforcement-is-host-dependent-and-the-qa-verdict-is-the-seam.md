@@ -28,15 +28,15 @@
 
 ## 1. Context
 
-Two independent failures, found by forensics on the **gvp** adopter (`/Users/marwanelgendy/workspace/PP/gvp`,
-read-only), share one root cause: **a doc asserted an absolute that the machinery does not support.**
+Two independent failures, found by forensics on the **gvp** adopter (a private downstream repo, read
+only), share one root cause: **a doc asserted an absolute that the machinery does not support.**
 
 ## 2. Ruling 1 — the enforcement boundary is host-dependent, and the docs must be correct under both worlds
 
 ### 2.1 What is verified
 
 On **2026-07-07T22:01–22:08Z** a **Cursor** composer agent drove gvp. Its bus
-(`/Users/marwanelgendy/workspace/PP/gvp/.claude/state/tics.jsonl`) contains, inside that window:
+(that repo's `.claude/state/tics.jsonl`) contains, inside that window:
 
 - Four `guard → orchestrator` **block** tics naming Cursor's exact files at Cursor's self-set phases —
   seq 743/744/745/747 (`22:08:06Z`–`22:08:34Z`), e.g.
